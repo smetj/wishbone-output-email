@@ -1,3 +1,5 @@
+::
+
               __       __    __
     .--.--.--|__.-----|  |--|  |--.-----.-----.-----.
     |  |  |  |  |__ --|     |  _  |  _  |     |  -__|
@@ -11,7 +13,7 @@
     wishbone.output.email
     =====================
 
-    Version: 0.1.0
+    Version: 1.0.0
 
     Sends out incoming events as email.
     -----------------------------------
@@ -44,5 +46,3 @@
 
             - inbox
                |  Incoming messages
-
-
