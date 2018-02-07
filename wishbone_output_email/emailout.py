@@ -25,7 +25,8 @@
 
 from wishbone import Actor
 from wishbone.event import Bulk
-from gevent import monkey; monkey.patch_socket()
+from gevent import monkey
+monkey.patch_socket()
 from email.mime.text import MIMEText
 import smtplib
 
@@ -83,9 +84,10 @@ class EmailOut(Actor):
             message["To"] = ",".join(self.kwargs.to)
 
             mta = smtplib.SMTP(self.kwargs.mta)
-            mta.sendmail(self.kwargs.from_address,
-                         self.kwargs.to,
-                         message.as_string()
-                         )
+            reply = mta.sendmail(self.kwargs.from_address,
+                                 self.kwargs.to,
+                                 message.as_string()
+                                 )
+            event.set(reply, "@tmp.%s.response" % (self.name))
         except Exception as err:
             raise Exception("Failed to send out email.  Reason: %s" % (err))
