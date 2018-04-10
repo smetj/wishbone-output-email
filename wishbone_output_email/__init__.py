@@ -22,4 +22,75 @@
 #
 #
 
-from emailout import EmailOut
+from gevent import monkey; monkey.patch_all()
+from wishbone.module import OutputModule
+from email.mime.text import MIMEText
+import smtplib
+
+
+class EmailOut(OutputModule):
+    '''
+    Sends out incoming events as email.
+
+    Parameters::
+
+        - from_address(str)("wishbone@localhost")*
+           |  The form email address.
+
+        - mta(string)("localhost:25)
+           |  The address:port of the MTA to submit the
+           |  mail to.
+
+        - native_events(bool)(False)
+           |  Submit Wishbone native events.
+
+        - parallel_streams(int)(1)
+           |  The number of outgoing parallel data streams.
+
+        - payload(str)(None)
+           |  The string to submit.
+           |  If defined takes precedence over `selection`.
+
+        - selection(str)("data")
+           |  The part of the event to submit externally.
+           |  Use an empty string to refer to the complete event.
+
+        - subject(str)("Wishbone")*
+           |  The subject of the email.
+
+        - to(list)([])*
+           |  A list of destinations.
+
+
+    Queues::
+
+        - inbox
+           |  Incoming messages
+
+    '''
+
+    def __init__(self, actor_config, parallel_streams=1, payload=None, selection="data", native_events=False,
+                 mta="localhost:25", subject="Wishbone", to=[], from_address="wishbone@localhost"):
+        OutputModule.__init__(self, actor_config)
+        self.pool.createQueue("inbox")
+        self.registerConsumer(self.consume, "inbox")
+
+    def consume(self, event):
+
+        data = self.getDataToSubmit(event)
+        data = self.encode(data)
+
+        try:
+            message = MIMEText(data)
+            message["Subject"] = event.kwargs.subject
+            message["From"] = event.kwargs.from_address
+            message["To"] = ",".join(event.kwargs.to)
+
+            mta = smtplib.SMTP(event.kwargs.mta)
+            reply = mta.sendmail(event.kwargs.from_address,
+                                 event.kwargs.to,
+                                 message.as_string()
+                                 )
+            event.set(reply, "tmp.%s.response" % (self.name))
+        except Exception as err:
+            raise Exception("Failed to send out email.  Reason: %s" % (err))

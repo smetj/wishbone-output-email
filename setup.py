@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+    #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 #  setup.py
@@ -27,7 +27,7 @@ from setuptools.command.test import test as TestCommand
 import sys
 
 PROJECT = 'wishbone_output_email'
-VERSION = '1.0.1'
+VERSION = '3.0.0'
 
 install_requires = [
     'wishbone>=2.1.1',
@@ -64,7 +64,7 @@ setup(
     author_email='development@smetj.net',
 
     url='https://github.com/smetj/wishbone-output-email',
-    download_url='https://github.com/smetj/wishbone-output-email/tarball/master',
+    download_url='https://github.com/wishbone-modules/wishbone-output-email/tarball/master',
     classifiers=['Development Status :: 5 - Production/Stable',
                  'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
                  'Programming Language :: Python',
@@ -86,7 +86,7 @@ setup(
     packages=find_packages(),
     zip_safe=False,
     entry_points={
-        'wishbone.output': [
+        'wishbone_contrib.module.output': [
             'email=wishbone_output_email:EmailOut',
         ]
     }
